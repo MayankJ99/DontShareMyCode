@@ -20,6 +20,7 @@
 <div class="container center-align">
   <h1 class="center-align">Share the join link</h1>
   <p id = "url" class="flow-text center-align"></p>
+
   <select id="change_chart" onchange="changeLanguage(this)">
     <option value="python" selected>python</option>
     <option value="JS">JS</option>
@@ -57,22 +58,25 @@
       </div>
     </div>
 
-    <div class='l12 s12 m12 buttonDiv' id='buttonDiv'>
-      <a href="#" class="button" id="btn-download" download="code.txt">Download file</a>
-    </div>
+    <!--<div class='l12 s12 m12 buttonDiv' id='buttonDiv'>-->
+      <!--<a href="#" class="button" id="btn-download" download="code.txt">Download file</a>-->
+    <!--</div>-->
   </div>
 </div>
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q==" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 
 <script type="text/javascript">
 
   let y = document.getElementById('url');
 url.innerText = window.location.href;
 
-
-
+  document.addEventListener('DOMContentLoaded', function() {
+      var elems = document.querySelectorAll('select');
+      var instances = M.FormSelect.init(elems, {});
+  });
 
 </script>
 <script>
@@ -147,13 +151,14 @@ url.innerText = window.location.href;
     editor.setShowPrintMargin(false);
 
     function changeLanguage(option){
-        if(option == "python"){
+        console.log(option.value)
+        if(option.value == "python"){
           editor.session.setMode("ace/mode/python")
-        }else if(option == "JS"){
+        }else if(option.value == "JS"){
             editor.session.setMode("ace/mode/javascript")
         }
         else{
-            editor.session.setMode("ace/mode/plain")
+            editor.session.setMode("ace/mode/plain_text")
         }
     }
 
@@ -220,7 +225,7 @@ url.innerText = window.location.href;
     button.addEventListener("click", function(e) {
         let code = editor.getValue();
         let element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(code));
         element.setAttribute('download', 'code.txt');
 
         element.style.display = 'none';
