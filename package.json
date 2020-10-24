@@ -2,7 +2,7 @@
   "name": "dontsharemycode",
   "version": "0.0.0",
   "private": true,
-  "main": "server.js",
+  "main": "app.js",
   "description": "Collaborative Text editing platform for TA code alongs and whiteboard interviews",
   "scripts": {
     "start": "nodemon app.js",

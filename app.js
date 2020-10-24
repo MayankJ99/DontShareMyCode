@@ -4,7 +4,6 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const socketIo = require("socket.io"),
-    path = require("path"),
     fs = require("fs"),
     mongoose = require("mongoose"),
     cors = require("cors"),
@@ -12,15 +11,14 @@ const socketIo = require("socket.io"),
     session = require("express-session");
 
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+const Session = require("./models/session")
 mongoose.Promise = global.Promise;
 const databaseUri =
-    "";
+    "mongodb+srv://UBH2020:UBH2020@ubh2020.8hgws.mongodb.net/UBH2020?retryWrites=true&w=majority";
 mongoose
     .connect(
         databaseUri,
@@ -31,6 +29,13 @@ mongoose
 
 
 // view engine setup
+app.use(
+    session({
+        secret: "secret",
+        resave: true,
+        saveUninitialized: false
+    })
+);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.engine("html", function(path, options, callbacks) {
@@ -45,21 +50,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-app.use(
-    session({
-        secret: "secret",
-        resave: true,
-        saveUninitialized: false
-        // cookie: { path: "/", secure: false, maxAge: 20000 }
-    })
-);
+
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
@@ -71,4 +67,5 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+const PORT = process.env.PORT || 8000;
+server.listen(PORT);
