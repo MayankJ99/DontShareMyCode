@@ -5,23 +5,195 @@
   <meta charset="UTF-8">
   <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.js"></script>
-  <script type="text/javascript" src="../canvas.js"></script>
-  <link rel="stylesheet" href='../app.css' />
+  <!--<link rel="stylesheet" href='../app.js' />-->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
 </head>
 
 <body>
+<div class="container center-align">
+  <h1 class="center-align">Share the join link</h1>
+  <p id = "url" class="flow-text center-align"></p>
 
+</div>
+<p id="fail" style="display:none">
+  <%= nickname %>
+</p>
+<div class="">
+  <div class="row" >
+    <div class="col s12 m12 l3" >
+      <h3>Active Users</h3>
+      <div id="userList">
+
+      </div>
+    </div>
+    <div class="col s12 m12 l6">
+      <h3 class="center-align">Editor</h3>
+      <div id = "editor" style="position: relative; height: 500px ; width: 100%; border-radius: 10px; padding-top: 100px" >
+
+      </div>
+    </div>
+    <div class="col l3">
+      <h3 class="center-align">Chat</h3>
+      <div id="messages" style="height: 400px;overflow: auto" >
+        <p id='useless'>
+          There are currently no messsages to display
+        </p>
+      </div>
+      <div class="messageInput">
+        <input id="userMessage" type="text" name="message" placeholder="Enter Message" />
+        <button onclick='sendMessage()' id ='msgBtn' class='btn btn-primary'>Send</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 
-<script type="text/javascript">
-  var x = document.getElementById("fail").innerText
-  sendNicknameAndRoom(x);
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q==" crossorigin="anonymous"></script>
 
-  var y = document.getElementById('url');
+<script type="text/javascript">
+
+  let y = document.getElementById('url');
 url.innerText = window.location.href;
 </script>
+<script>
+    let input = document.getElementById("userMessage");
+    input.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            document.getElementById("msgBtn").click();
+        }
+    });
+</script>
+<script>
+    let nickname = document.getElementById("fail").innerText
+    nickname = nickname.replace(/\s/g, "")
+    let users = []
+   let msgs = []
+
+    function updateMessages(sender, msg) {
+
+        document.getElementById('useless').innerText = ""
+        let messages = document.getElementById('messages')
+        let message_paragraph = document.createElement("p");
+        // message_paragraph.classList.add("message_paragraph");
+        // let textnode = document.createTextNode(from + ': ' + msg);
+        // message_paragraph.appendChild(textnode);
+        // messages.appendChild(message_paragraph);
+        message_paragraph.innerHTML = sender + " : " + msg
+        messages.appendChild(message_paragraph)
+    }
+
+    function sendMessage() {
+        let msg = document.getElementById("userMessage").value;
+        document.getElementById("userMessage").value = "";
+        socket.emit("message", msg);
+        msgs.push({
+            from: nickname,
+            message: msg
+        });
+        console.log(msgs);
+
+        updateMessages(nickname, msg)
+
+    }
+    function updateUserList() {
+        document.getElementById("userList").innerHTML = "";
+        for (let i = 0; i < users.length; i++) {
+            let node = document.createElement("p");
+            node.classList.add("nameParagraph");
+            let hr = document.createElement("hr");
+            hr.classList.add("nameParagraphUnderline");
+            let textnode = document.createTextNode(users[i]);
+            node.appendChild(textnode);
+            document.getElementById("userList").appendChild(node);
+            document.getElementById("userList").appendChild(hr);
+        }
+    }
+
+
+
+    let socket = io.connect("/")
+    let urlArray = window.location.href.split("/");
+
+    socket.emit("room", {
+        id: String(urlArray[urlArray.length - 1]),
+        nickname: nickname
+    });
+
+     let editor = ace.edit("editor");
+     editor.setTheme("ace/theme/monokai");
+
+    editor.session.setMode("ace/mode/python");
+    editor.setShowPrintMargin(false);
+
+    let allowed = true
+    socket.on("code", function(data){
+        allowed = false
+        editor.setValue(data)
+        allowed = true
+    })
+
+    socket.on("message", function addNewMessage(data) {
+        // msgs.push(data);
+        updateMessages(data.from,data.message)
+        // console.log(msgs);
+    });
+
+    socket.on("on_page_load_messages", function loadPageMessages(arr) {
+        // for (var item of arr) {
+        //   msgs.push(item);
+        // }
+        // console.log(msgs);
+        for(var item of arr){
+            updateMessages(item.from,item.message)
+        }
+    });
+
+    socket.on("on_page_load_code", function(data){
+        allowed = false
+        editor.setValue(data)
+        allowed = true
+    })
+
+    socket.on('new_joiner', function(data){
+        users.push(data);
+        console.log(users);
+        updateUserList();
+    })
+
+    socket.on('on_page_load_users', function(data){
+        for (let item of data) {
+            users.push(item);
+        }
+        console.log(users);
+        updateUserList();
+    })
+
+  socket.on("user_left", function(data){
+      let index = users.indexOf(socket.nickname);
+      users.splice(index, 1);
+      console.log(users);
+      updateUserList();
+  })
+
+    editor.resize()
+    editor.on("change", function(e){
+        if(allowed) {
+            socket.emit("code", {code: editor.getValue(), id: String(urlArray[urlArray.length - 1])})
+        }
+    })
+
+
+
+</script>
+
+
 
 </html>

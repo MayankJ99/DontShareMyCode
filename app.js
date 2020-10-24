@@ -67,5 +67,90 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+
+io.on("connection", socket => {
+
+
+    socket.on("room", connection => {
+        Session.findById(connection.id, function(err, session) {
+            if (!err) {
+                if (session) {
+                    session.users = session.users + 1;
+                    socket.emit("on_page_load_users", session.nicknames);
+                    socket.emit("on_page_load_code", session.content);
+                    socket.emit("on_page_load_messages", session.messages);
+                    session.nicknames.push(connection.nickname);
+                    session.save();
+                } else {
+                    let new_session = new Session({
+                        _id: connection.id,
+                        nicknames: [connection.nickname]
+                    });
+                    new_session.save();
+                }
+            }
+
+            socket.join(connection.id);
+            socket.room = connection.id;
+            socket.nickname = connection.nickname;
+            socket.in(connection.id).emit("new_joiner", connection.nickname);
+        });
+    });
+
+
+    socket.on("code", connection => {
+        Session.findById(connection.id, function(err, session) {
+            if (!err) {
+                if (!session) {
+                } else {
+                    session.content = connection.code;
+                    session.save();
+                }
+            }
+        });
+        socket.in(connection.id).emit("code", connection.code);
+    });
+
+    socket.on("message", msg => {
+        console.log(msg)
+        Session.findById(socket.room, function(err, session) {
+            if (!err) {
+                if (!session) {
+                } else {
+                    session.messages.push({
+                        from: socket.nickname,
+                        message: msg
+                    });
+                    session.save();
+                }
+            }
+        });
+        socket.in(socket.room).emit("message", {
+            from: socket.nickname,
+            message: msg
+        });
+    });
+
+
+    socket.on("disconnect", () => {
+        Session.findById(socket.room, function(err, session) {
+            if (!err) {
+                if (!session) {
+                } else {
+                    session.users = session.users - 1;
+                    var index = session.nicknames.indexOf(socket.nickname);
+                    session.nicknames.splice(index, 1);
+                    if (session.users == 0) {
+                        session.delete();
+                    } else {
+                        socket.in(socket.room).emit("user_left", socket.nickname);
+                        session.save();
+                    }
+                }
+            }
+        });
+    });
+
+})
 const PORT = process.env.PORT || 8000;
 server.listen(PORT);
