@@ -1,0 +1,26 @@
+{
+  "name": "dontsharemycode",
+  "version": "0.0.0",
+  "private": true,
+  "main": "server.js",
+  "description": "Collaborative Text editing platform for TA code alongs and whiteboard interviews",
+  "scripts": {
+    "start": "nodemon app.js",
+    "run" : "node app.js"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "express-session": "^1.17.1",
+    "http-errors": "~1.6.3",
+    "mongoose": "^5.10.10",
+    "morgan": "~1.9.1",
+    "nodemon": "^2.0.6",
+    "path": "^0.12.7",
+    "pug": "^3.0.0",
+    "socket.io": "^2.3.0"
+  }
+}
