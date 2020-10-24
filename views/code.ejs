@@ -20,6 +20,11 @@
 <div class="container center-align">
   <h1 class="center-align">Share the join link</h1>
   <p id = "url" class="flow-text center-align"></p>
+  <select id="change_chart" onchange="changeLanguage(this)">
+    <option value="python" selected>python</option>
+    <option value="JS">JS</option>
+    <option value="plain">plain text</option>
+  </select>
 
 </div>
 <p id="fail" style="display:none">
@@ -51,6 +56,10 @@
         <button onclick='sendMessage()' id ='msgBtn' class='btn btn-primary'>Send</button>
       </div>
     </div>
+
+    <div class='l12 s12 m12 buttonDiv' id='buttonDiv'>
+      <a href="#" class="button" id="btn-download" download="code.txt">Download file</a>
+    </div>
   </div>
 </div>
 </body>
@@ -61,6 +70,10 @@
 
   let y = document.getElementById('url');
 url.innerText = window.location.href;
+
+
+
+
 </script>
 <script>
     let input = document.getElementById("userMessage");
@@ -133,6 +146,18 @@ url.innerText = window.location.href;
     editor.session.setMode("ace/mode/python");
     editor.setShowPrintMargin(false);
 
+    function changeLanguage(option){
+        if(option == "python"){
+          editor.session.setMode("ace/mode/python")
+        }else if(option == "JS"){
+            editor.session.setMode("ace/mode/javascript")
+        }
+        else{
+            editor.session.setMode("ace/mode/plain")
+        }
+    }
+
+
     let allowed = true
     socket.on("code", function(data){
         allowed = false
@@ -191,6 +216,21 @@ url.innerText = window.location.href;
     })
 
 
+    let button = document.getElementById("btn-download");
+    button.addEventListener("click", function(e) {
+        let code = editor.getValue();
+        let element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', 'code.txt');
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+
+    });
 
 </script>
 
