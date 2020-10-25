@@ -145,7 +145,7 @@ url.innerText = window.location.href;
 
 
 
-    let socket = io()
+    let socket = io.connect(window.location.hostname)
     let urlArray = window.location.href.split("/");
 
     socket.emit("room", {
@@ -180,6 +180,8 @@ url.innerText = window.location.href;
     let allowed = true
 
     socket.on("code", function(data){
+        console.log("change incoming 1")
+
         console.log(data)
         allowed = false
         editor.setValue(data)
@@ -264,7 +266,10 @@ url.innerText = window.location.href;
     editor.resize()
 
     editor.on("change", function(e){
+        console.log("change outgoing 1")
         if(allowed) {
+            console.log("change outgoing 2")
+
             socket.emit("code", {code: editor.getValue(), id: String(urlArray[urlArray.length - 1])})
         }
     })
