@@ -13,7 +13,7 @@ const socketIo = require("socket.io"),
 
 const indexRouter = require('./routes/index');
 const app = express();
-const server = http.createServer(app);
+const server = http.Server(app);
 const io = socketIo(server);
 
 const Session = require("./models/session")
