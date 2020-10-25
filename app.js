@@ -90,6 +90,7 @@ io.on("connection", socket => {
                     session.nicknames.push(connection.nickname);
                     session.update();
                 } else {
+                    console.log('creating a new session')
                     let new_session = new Session({
                         _id: connection.id,
                         nicknames: [connection.nickname],

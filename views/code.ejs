@@ -89,6 +89,7 @@ url.innerText = window.location.href;
 
 </script>
 <script>
+
     let input = document.getElementById("userMessage");
     input.addEventListener("keyup", function(event) {
         if (event.keyCode === 13) {
@@ -98,6 +99,12 @@ url.innerText = window.location.href;
     });
 </script>
 <script>
+    let editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+
+    editor.session.setMode("ace/mode/python");
+    editor.setShowPrintMargin(false);
+
     let nickname = document.getElementById("fail").innerText
     nickname = nickname.replace(/\s/g, "")
     let users = []
@@ -153,11 +160,6 @@ url.innerText = window.location.href;
         nickname: nickname
     });
 
-     let editor = ace.edit("editor");
-     editor.setTheme("ace/theme/monokai");
-
-    editor.session.setMode("ace/mode/python");
-    editor.setShowPrintMargin(false);
 
     function changeLanguage(option){
         console.log(option.value)
