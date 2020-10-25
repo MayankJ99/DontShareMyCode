@@ -18,5 +18,5 @@ TODO : maintain some history of documents for each user.
 
 Hosted on Heroku
 Link:
-  dontsharemycode.tech
+  http://dontsharemycode.tech
   Powered by Domain.com
