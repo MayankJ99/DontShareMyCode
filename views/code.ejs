@@ -17,6 +17,15 @@
 </head>
 
 <body>
+<nav>
+  <div class="nav-wrapper" style="background-color: #B8B8FF; padding-bottom: 20px" >
+    <a href="/" class="brand-logo black-text" style="padding-left: 10px">Don't share my code</a>
+    <ul id="nav-mobile" class="right hide-on-med-and-down">
+      <li><a href="/about" class="black-text flow-text">About</a></li>
+    </ul>
+  </div>
+</nav>
+
 <div class="container center-align">
   <h1 class="center-align">Share the join link</h1>
   <p id = "url" class="flow-text center-align"></p>
@@ -154,17 +163,24 @@ url.innerText = window.location.href;
         console.log(option.value)
         if(option.value == "python"){
           editor.session.setMode("ace/mode/python")
+            socket.emit('change_language', {language: "python", id: String(urlArray[urlArray.length - 1])})
+
         }else if(option.value == "JS"){
             editor.session.setMode("ace/mode/javascript")
+            socket.emit('change_language', {language: "javascript", id: String(urlArray[urlArray.length - 1])})
         }
         else{
             editor.session.setMode("ace/mode/plain_text")
+            socket.emit('change_language', {language: "plain_text", id: String(urlArray[urlArray.length - 1])})
+
         }
     }
 
 
     let allowed = true
+
     socket.on("code", function(data){
+        console.log(data)
         allowed = false
         editor.setValue(data)
         allowed = true
@@ -184,6 +200,38 @@ url.innerText = window.location.href;
         for(var item of arr){
             updateMessages(item.from,item.message)
         }
+    });
+
+    socket.on("on_page_load_code", function loadPageCode(code) {
+        // for (var item of arr) {
+        //   msgs.push(item);
+        // }
+        // console.log(msgs);
+      editor.session.setMode("ace/mode/"+code)
+    });
+
+    socket.on("change_language", function changeLang(code) {
+        // for (var item of arr) {
+        //   msgs.push(item);
+        // }
+        // console.log(msgs);
+        console.log(code)
+        let element = document.getElementById('change_chart');
+        let select = 'python'
+        if(code == "javascript"){
+            select = 'JS'
+        }
+        else if(code == "plain_text"){
+            select = "plain"
+        }
+        for ( let i = 0; i = element.options.length; i++){
+           if(element.options[i].value == select){
+               element.options[i].selected = true;
+
+               break;
+           }
+        }
+        editor.session.setMode("ace/mode/"+code)
     });
 
     socket.on("on_page_load_code", function(data){
@@ -214,6 +262,7 @@ url.innerText = window.location.href;
   })
 
     editor.resize()
+
     editor.on("change", function(e){
         if(allowed) {
             socket.emit("code", {code: editor.getValue(), id: String(urlArray[urlArray.length - 1])})

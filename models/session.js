@@ -8,7 +8,7 @@ var sessionSchema = new mongoose.Schema({
     },
     _id: { type: String, required: true },
     content: { type: String, required: false },
-
+    language : { type : String, required : false}
 });
 
 module.exports = mongoose.model("Session", sessionSchema);

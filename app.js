@@ -79,12 +79,14 @@ io.on("connection", socket => {
                     socket.emit("on_page_load_users", session.nicknames);
                     socket.emit("on_page_load_code", session.content);
                     socket.emit("on_page_load_messages", session.messages);
+                    socket.emit("on_page_load_language", session.language)
                     session.nicknames.push(connection.nickname);
                     session.save();
                 } else {
                     let new_session = new Session({
                         _id: connection.id,
-                        nicknames: [connection.nickname]
+                        nicknames: [connection.nickname],
+                        language : "python"
                     });
                     new_session.save();
                 }
@@ -98,12 +100,28 @@ io.on("connection", socket => {
     });
 
 
+    socket.on("change_language", connection => {
+        console.log(connection.language)
+        Session.findById(connection.id, function(err, session){
+            if(!err){
+                if(session){
+                    session.language = connection.language
+                    session.save();
+
+                }
+            }
+
+            socket.in(connection.id).emit("change_language", connection.language);
+        })
+    })
+
+
     socket.on("code", connection => {
         Session.findById(connection.id, function(err, session) {
             if (!err) {
                 if (!session) {
                 } else {
-                    session.content = connection.code;
+                    session.code = connection.code;
                     session.save();
                 }
             }

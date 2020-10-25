@@ -2,8 +2,12 @@ var express = require('express');
 var router = express.Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
   res.render('index', { title: 'Express' });
+});
+
+router.get('/about', function(req, res) {
+    res.render('about', { title: 'Express' });
 });
 
 router.get("/code/:id", (req, res) => {
@@ -27,6 +31,9 @@ router.post("/code/:id/nickname", (req, res) => {
 });
 
 router.post("/generateRoomURL", (req, res) => {
+    if(req.session.nickname){
+      req.session.nickname = undefined
+    }
     var text = "";
     var possible =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
