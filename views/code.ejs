@@ -145,7 +145,7 @@ url.innerText = window.location.href;
 
 
 
-    let socket = io.connect("/")
+    let socket = io()
     let urlArray = window.location.href.split("/");
 
     socket.emit("room", {
