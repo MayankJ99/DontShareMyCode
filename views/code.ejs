@@ -145,7 +145,7 @@ url.innerText = window.location.href;
 
 
 
-    let socket = io.connect(window.location.hostname)
+    let socket = io.connect("/")
     let urlArray = window.location.href.split("/");
 
     socket.emit("room", {
@@ -204,7 +204,7 @@ url.innerText = window.location.href;
         }
     });
 
-    socket.on("on_page_load_code", function loadPageCode(code) {
+    socket.on("on_page_load_language", function loadPageLang(code) {
         // for (var item of arr) {
         //   msgs.push(item);
         // }
@@ -218,21 +218,6 @@ url.innerText = window.location.href;
         // }
         // console.log(msgs);
         console.log(code)
-        let element = document.getElementById('change_chart');
-        let select = 'python'
-        if(code == "javascript"){
-            select = 'JS'
-        }
-        else if(code == "plain_text"){
-            select = "plain"
-        }
-        for ( let i = 0; i = element.options.length; i++){
-           if(element.options[i].value == select){
-               element.options[i].selected = true;
-
-               break;
-           }
-        }
         editor.session.setMode("ace/mode/"+code)
     });
 
@@ -275,21 +260,6 @@ url.innerText = window.location.href;
     })
 
 
-    let button = document.getElementById("btn-download");
-    button.addEventListener("click", function(e) {
-        let code = editor.getValue();
-        let element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(code));
-        element.setAttribute('download', 'code.txt');
-
-        element.style.display = 'none';
-        document.body.appendChild(element);
-
-        element.click();
-
-        document.body.removeChild(element);
-
-    });
 
 </script>
 

@@ -76,13 +76,19 @@ io.on("connection", socket => {
         Session.findById(connection.id, function(err, session) {
             if (!err) {
                 if (session) {
+                    console.log(session)
                     session.users = session.users + 1;
                     socket.emit("on_page_load_users", session.nicknames);
                     socket.emit("on_page_load_code", session.content);
+                    if(session.content){
+                        console.log("we have code from DB")
+                        console.log("============")
+                        console.log(session.content)
+                    }
                     socket.emit("on_page_load_messages", session.messages);
                     socket.emit("on_page_load_language", session.language)
                     session.nicknames.push(connection.nickname);
-                    session.save();
+                    session.update();
                 } else {
                     let new_session = new Session({
                         _id: connection.id,
@@ -122,7 +128,7 @@ io.on("connection", socket => {
             if (!err) {
                 if (!session) {
                 } else {
-                    session.code = connection.code;
+                    session.content = connection.code;
                     session.save();
                 }
             }
