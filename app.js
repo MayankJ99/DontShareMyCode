@@ -167,7 +167,6 @@ io.on("connection", socket => {
                     var index = session.nicknames.indexOf(socket.nickname);
                     session.nicknames.splice(index, 1);
                     if (session.users == 0) {
-                        session.delete();
                     } else {
                         socket.in(socket.room).emit("user_left", socket.nickname);
                         session.save();
